@@ -1,8 +1,7 @@
-import { RegisterDto } from "src/auth/dto/register.dto";
-import { PrismaService } from "src/prisma/prisma.service";
-
 import { Injectable, NotFoundException } from "@nestjs/common";
 
+import { RegisterDto } from "../auth/dto/register.dto";
+import { PrismaService } from "../prisma/prisma.service";
 import { UserMetadata, userToMetadata } from "./dto/user-metadata.dto";
 
 @Injectable()

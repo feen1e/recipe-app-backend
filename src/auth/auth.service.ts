@@ -1,5 +1,4 @@
 import { compare, hash } from "bcrypt";
-import { UserMetadata } from "src/users/dto/user-metadata.dto";
 
 import {
   ConflictException,
@@ -8,6 +7,7 @@ import {
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 
+import { UserMetadata } from "../users/dto/user-metadata.dto";
 import { UsersService } from "../users/users.service";
 import { LoginResponseDto } from "./dto/login-response.dto";
 import { LoginDto } from "./dto/login.dto";
