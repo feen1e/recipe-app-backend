@@ -1,0 +1,27 @@
+import type { Role, User } from "@prisma/client";
+
+export class UserResponseDto {
+  id: string;
+  username: string;
+  email: string;
+  bio?: string;
+  avatarUrl?: string;
+  role: Role;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export function userToResponseDto(user: User, appUrl: string): UserResponseDto {
+  const avatar =
+    user.avatarUrl === null ? undefined : `${appUrl}/uploads/${user.avatarUrl}`;
+  return {
+    id: user.id,
+    username: user.username,
+    email: user.email,
+    bio: user.bio ?? undefined,
+    avatarUrl: avatar,
+    role: user.role,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+  };
+}
