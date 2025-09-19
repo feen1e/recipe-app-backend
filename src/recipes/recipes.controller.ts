@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
+  Patch,
   Post,
   Req,
   UnauthorizedException,
@@ -19,6 +21,7 @@ import { AuthGuard } from "../auth/auth.guard";
 import type { RequestWithUser } from "../auth/dto/request-with-user.dto";
 import { RecipeCreateDto } from "./dto/recipe-create.dto";
 import { RecipeResponseDto } from "./dto/recipe-response.dto";
+import { RecipeUpdateDto } from "./dto/recipe-update.dto";
 import { RecipesService } from "./recipes.service";
 
 @Controller("recipes")
@@ -36,6 +39,18 @@ export class RecipesController {
   })
   async getAllRecipes() {
     return this.recipesService.getAllRecipes();
+  }
+
+  @Get("user/:username")
+  @ApiOperation({ summary: "Get recipes by user ID" })
+  @ApiResponse({
+    status: 200,
+    description: "List of recipes by the specified user",
+    isArray: true,
+    type: RecipeResponseDto,
+  })
+  async getUserRecipes(@Param("username") username: string) {
+    return this.recipesService.getUserRecipes(username);
   }
 
   @Get(":id")
@@ -65,5 +80,54 @@ export class RecipesController {
       throw new UnauthorizedException("User not found in request");
     }
     return this.recipesService.createRecipe(dto, request.user.id);
+  }
+
+  @Patch(":id")
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: "Update a recipe" })
+  @ApiResponse({
+    status: 200,
+    description: "The recipe has been successfully updated.",
+    type: RecipeResponseDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: "Recipe not found",
+  })
+  @ApiResponse({
+    status: 403,
+    description: "You do not have permission to update this recipe",
+  })
+  async updateRecipe(
+    @Req() request: RequestWithUser,
+    @Param("id") id: string,
+    @Body() dto: RecipeUpdateDto,
+  ) {
+    if (request.user == null) {
+      throw new UnauthorizedException("User not found in request");
+    }
+    return this.recipesService.updateRecipe(request.user, id, dto);
+  }
+
+  @Delete(":id")
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: "Delete a recipe" })
+  @ApiResponse({
+    status: 200,
+    description: "The recipe has been successfully deleted.",
+  })
+  @ApiResponse({
+    status: 404,
+    description: "Recipe not found",
+  })
+  @ApiResponse({
+    status: 403,
+    description: "You do not have permission to delete this recipe",
+  })
+  async deleteRecipe(@Req() request: RequestWithUser, @Param("id") id: string) {
+    if (request.user == null) {
+      throw new UnauthorizedException("User not found in request");
+    }
+    return this.recipesService.deleteRecipe(request.user, id);
   }
 }

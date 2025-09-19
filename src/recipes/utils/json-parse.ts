@@ -1,4 +1,4 @@
-import type { JsonValue } from "@prisma/client/runtime/library";
+import type { InputJsonValue } from "@prisma/client/runtime/library";
 
 export function parseArrayFromJson(array): string[] {
   return Array.isArray(array)
@@ -8,7 +8,7 @@ export function parseArrayFromJson(array): string[] {
       : [];
 }
 
-export function parseArrayToJson(array: string[]): JsonValue {
+export function parseArrayToJson(array: string[]): InputJsonValue {
   return Array.isArray(array)
     ? JSON.stringify(array)
     : typeof array === "string"
