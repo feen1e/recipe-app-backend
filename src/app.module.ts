@@ -5,6 +5,7 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { AuthModule } from "./auth/auth.module";
 import { PrismaModule } from "./prisma/prisma.module";
+import { RecipesModule } from "./recipes/recipes.module";
 import { UploadsModule } from "./uploads/uploads.module";
 import { UsersModule } from "./users/users.module";
 
@@ -15,6 +16,7 @@ import { UsersModule } from "./users/users.module";
     AuthModule,
     ConfigModule.forRoot({ isGlobal: true }),
     UploadsModule,
+    RecipesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
