@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Req,
+  UnauthorizedException,
   UseGuards,
 } from "@nestjs/common";
 import {
@@ -60,7 +61,7 @@ export class UsersController {
     @Body() dto: UserUpdateDto,
   ) {
     if (request.user === undefined) {
-      throw new Error("Authenticated user not found in the request");
+      throw new UnauthorizedException("User not authenticated");
     }
     return this.usersService.updateUserData(request.user, dto);
   }

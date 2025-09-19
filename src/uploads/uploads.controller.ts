@@ -58,7 +58,7 @@ export class UploadsController {
         if (file.mimetype.startsWith("image/")) {
           callback(null, true);
         } else {
-          callback(new Error("Only image files allowed"), false);
+          callback(new BadRequestException("Only image files allowed"), false);
         }
       },
       limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit

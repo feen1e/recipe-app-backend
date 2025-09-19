@@ -77,7 +77,7 @@ export class RecipesController {
     @Body() dto: RecipeCreateDto,
   ) {
     if (request.user == null) {
-      throw new UnauthorizedException("User not found in request");
+      throw new UnauthorizedException("User not authenticated");
     }
     return this.recipesService.createRecipe(dto, request.user.id);
   }
@@ -104,7 +104,7 @@ export class RecipesController {
     @Body() dto: RecipeUpdateDto,
   ) {
     if (request.user == null) {
-      throw new UnauthorizedException("User not found in request");
+      throw new UnauthorizedException("User not authenticated");
     }
     return this.recipesService.updateRecipe(request.user, id, dto);
   }
@@ -126,7 +126,7 @@ export class RecipesController {
   })
   async deleteRecipe(@Req() request: RequestWithUser, @Param("id") id: string) {
     if (request.user == null) {
-      throw new UnauthorizedException("User not found in request");
+      throw new UnauthorizedException("User not authenticated");
     }
     return this.recipesService.deleteRecipe(request.user, id);
   }
