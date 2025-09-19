@@ -4,6 +4,7 @@ import { ConfigModule } from "@nestjs/config";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { AuthModule } from "./auth/auth.module";
+import { CollectionsModule } from "./collections/collections.module";
 import { FavoritesModule } from "./favorites/favorites.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { RecipesModule } from "./recipes/recipes.module";
@@ -19,6 +20,7 @@ import { UsersModule } from "./users/users.module";
     UploadsModule,
     RecipesModule,
     FavoritesModule,
+    CollectionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
