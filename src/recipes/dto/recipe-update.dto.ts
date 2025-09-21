@@ -55,7 +55,7 @@ export class RecipeUpdateDto {
 
   @ApiPropertyOptional({
     description: "The image URL for the recipe",
-    example: "/uploads/recipes/spaghetti-carbonara.jpg",
+    example: "recipes/spaghetti-carbonara.jpg",
   })
   @IsOptional()
   @IsString()

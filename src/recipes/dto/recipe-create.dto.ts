@@ -40,7 +40,7 @@ export class RecipeCreateDto {
 
   @ApiPropertyOptional({
     description: "The URL of the recipe image",
-    example: "/uploads/recipes/spaghetti_carbonara.jpg",
+    example: "recipes/spaghetti_carbonara.jpg",
   })
   @IsString()
   @IsOptional()

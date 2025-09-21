@@ -21,7 +21,7 @@ export class UserUpdateDto {
 
   @ApiPropertyOptional({
     description: "The URL of the user's avatar",
-    example: "/uploads/avatars/john_doe.jpg",
+    example: "avatars/john_doe.jpg",
   })
   @IsOptional()
   @IsString()

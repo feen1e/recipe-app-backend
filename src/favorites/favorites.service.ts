@@ -3,13 +3,17 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 
 import { PrismaService } from "../prisma/prisma.service";
 import { recipeToResponseDto } from "../recipes/dto/recipe-response.dto";
 
 @Injectable()
 export class FavoritesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly configService: ConfigService,
+  ) {}
 
   async getUserFavorites(username: string) {
     const user = await this.prisma.user.findUnique({ where: { username } });
@@ -21,7 +25,9 @@ export class FavoritesService {
       where: { userId: user.id },
       include: { recipe: true },
     });
-    return favorites.map((fav) => recipeToResponseDto(fav.recipe));
+
+    const appUrl = this.configService.get<string>("APP_URL") ?? "";
+    return favorites.map((fav) => recipeToResponseDto(fav.recipe, appUrl));
   }
 
   async addFavorite(userId: string, recipeId: string) {
@@ -64,10 +70,12 @@ export class FavoritesService {
       throw new NotFoundException("Favorite not found");
     }
 
-    return this.prisma.favorite.delete({
+    await this.prisma.favorite.delete({
       where: {
         userId_recipeId: { userId, recipeId },
       },
     });
+
+    return { message: "Favorite removed successfully" };
   }
 }

@@ -21,6 +21,7 @@ export interface CollectionWithRecipes extends Collection {
 
 export function collectionToResponseDto(
   collection: CollectionWithRecipes,
+  appUrl: string,
 ): CollectionWithRecipesResponseDto {
   return {
     id: collection.id,
@@ -30,7 +31,7 @@ export function collectionToResponseDto(
     createdAt: collection.createdAt,
     updatedAt: collection.updatedAt,
     recipes: collection.recipes.map(({ recipe }) =>
-      recipeToResponseDto(recipe),
+      recipeToResponseDto(recipe, appUrl),
     ),
   };
 }

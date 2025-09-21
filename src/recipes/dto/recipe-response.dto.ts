@@ -14,9 +14,16 @@ export class RecipeResponseDto {
   updatedAt: Date;
 }
 
-export function recipeToResponseDto(recipe: Recipe): RecipeResponseDto {
+export function recipeToResponseDto(
+  recipe: Recipe,
+  appUrl: string,
+): RecipeResponseDto {
   const ingredients: string[] = parseArrayFromJson(recipe.ingredients);
   const steps: string[] = parseArrayFromJson(recipe.steps);
+  const imageUrl =
+    recipe.imageUrl === null
+      ? undefined
+      : `${appUrl}/uploads/${recipe.imageUrl}`;
 
   return {
     id: recipe.id,
@@ -25,7 +32,7 @@ export function recipeToResponseDto(recipe: Recipe): RecipeResponseDto {
     description: recipe.description ?? undefined,
     ingredients,
     steps,
-    imageUrl: recipe.imageUrl ?? undefined,
+    imageUrl: imageUrl ?? undefined,
     createdAt: recipe.createdAt,
     updatedAt: recipe.updatedAt,
   };

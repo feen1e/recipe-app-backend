@@ -7,6 +7,7 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 
 import { PrismaService } from "../prisma/prisma.service";
 import { RecipeCreateDto } from "./dto/recipe-create.dto";
@@ -19,11 +20,15 @@ import { parseArrayToJson } from "./utils/json-parse";
 
 @Injectable()
 export class RecipesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly configService: ConfigService,
+  ) {}
 
   async getAllRecipes(): Promise<RecipeResponseDto[]> {
     const recipes = await this.prisma.recipe.findMany();
-    return recipes.map((recipe) => recipeToResponseDto(recipe));
+    const appUrl = this.configService.get<string>("APP_URL") ?? "";
+    return recipes.map((recipe) => recipeToResponseDto(recipe, appUrl));
   }
 
   async getUserRecipes(username: string): Promise<RecipeResponseDto[]> {
@@ -38,7 +43,8 @@ export class RecipesService {
       where: { authorId: user.id },
     });
 
-    return recipes.map((recipe) => recipeToResponseDto(recipe));
+    const appUrl = this.configService.get<string>("APP_URL") ?? "";
+    return recipes.map((recipe) => recipeToResponseDto(recipe, appUrl));
   }
 
   async getRecipeById(id: string): Promise<RecipeResponseDto> {
@@ -50,7 +56,8 @@ export class RecipesService {
       throw new NotFoundException(`Recipe with ID ${id} not found`);
     }
 
-    return recipeToResponseDto(recipe);
+    const appUrl = this.configService.get<string>("APP_URL") ?? "";
+    return recipeToResponseDto(recipe, appUrl);
   }
 
   async createRecipe(
@@ -71,7 +78,8 @@ export class RecipesService {
       },
     });
 
-    return recipeToResponseDto(newRecipe);
+    const appUrl = this.configService.get<string>("APP_URL") ?? "";
+    return recipeToResponseDto(newRecipe, appUrl);
   }
 
   async updateRecipe(
@@ -125,7 +133,8 @@ export class RecipesService {
       data: updatedData,
     });
 
-    return recipeToResponseDto(updatedRecipe);
+    const appUrl = this.configService.get<string>("APP_URL") ?? "";
+    return recipeToResponseDto(updatedRecipe, appUrl);
   }
 
   async deleteRecipe(user: UserMetadata, id: string) {

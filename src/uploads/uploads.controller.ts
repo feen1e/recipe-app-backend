@@ -97,7 +97,7 @@ export class UploadsController {
   ) {
     return {
       filename: file.filename,
-      url: `/uploads/${type}/${file.filename}`,
+      url: `${type}/${file.filename}`,
     };
   }
 }

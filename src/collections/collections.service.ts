@@ -5,6 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 
 import { PrismaService } from "../prisma/prisma.service";
 import { UserMetadata } from "../users/dto/user-metadata.dto";
@@ -22,6 +23,7 @@ export class CollectionsService {
   constructor(
     private prisma: PrismaService,
     private readonly userService: UsersService,
+    private readonly configService: ConfigService,
   ) {}
 
   async getAllCollections(): Promise<CollectionResponseDto[]> {
@@ -47,7 +49,8 @@ export class CollectionsService {
       throw new NotFoundException("Collection not found");
     }
 
-    return collectionToResponseDto(collection);
+    const appUrl = this.configService.get<string>("APP_URL") ?? "";
+    return collectionToResponseDto(collection, appUrl);
   }
 
   async getUserCollections(username: string): Promise<CollectionResponseDto[]> {
