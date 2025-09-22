@@ -1,6 +1,7 @@
 import { User } from "@prisma/client";
 
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -24,13 +25,17 @@ export class UsersService {
   ) {}
 
   async create(dto: RegisterDto) {
-    return this.prisma.user.create({
-      data: {
-        username: dto.username,
-        email: dto.email,
-        password: dto.password,
-      },
-    });
+    try {
+      return await this.prisma.user.create({
+        data: {
+          username: dto.username,
+          email: dto.email,
+          password: dto.password,
+        },
+      });
+    } catch {
+      throw new BadRequestException("Invalid request data");
+    }
   }
 
   async findOne(identifier: string): Promise<User | null> {
@@ -161,5 +166,15 @@ export class UsersService {
       throw new Error("APP_URL is not defined in the environment variables");
     }
     return userToResponseDto(updatedUser, appUrl);
+  }
+
+  async getUser(username: string) {
+    const foundUser = await this.findOne(username);
+    if (foundUser === null) {
+      throw new NotFoundException("User not found");
+    }
+
+    const appUrl = this.configService.get<string>("APP_URL") ?? "";
+    return userToResponseDto(foundUser, appUrl);
   }
 }

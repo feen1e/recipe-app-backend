@@ -24,7 +24,6 @@ import { RegisterDto } from "../auth/dto/register.dto";
 import type { RequestWithUser } from "../auth/dto/request-with-user.dto";
 import { Roles } from "../auth/roles/role.decorator";
 import { RoleGuard } from "../auth/roles/role.guard";
-import { userToResponseDto } from "./dto/user-response.dto";
 import { UserUpdateForAdminDto } from "./dto/user-update-for-admin.dto";
 import { UserUpdateDto } from "./dto/user-update.dto";
 import { UsersService } from "./users.service";
@@ -47,7 +46,7 @@ export class UsersController {
   @ApiResponse({ status: 400, description: "Bad Request." })
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(Role.ADMIN)
-  async createUser(dto: RegisterDto) {
+  async createUser(@Body() dto: RegisterDto) {
     return this.usersService.create(dto);
   }
 
@@ -94,12 +93,6 @@ export class UsersController {
   @ApiResponse({ status: 200, description: "User found." })
   @ApiResponse({ status: 404, description: "User not found." })
   async getUser(@Param("username") username: string) {
-    const foundUser = await this.usersService.findOne(username);
-    if (foundUser === null) {
-      throw new UnauthorizedException("User not found");
-    }
-
-    const appUrl = this.configService.get<string>("APP_URL") ?? "";
-    return userToResponseDto(foundUser, appUrl);
+    return await this.usersService.getUser(username);
   }
 }
