@@ -32,6 +32,16 @@ export async function seedDatabase() {
     },
   });
 
+  const _anotherUser = await prisma.user.create({
+    data: {
+      username: "another_user",
+      email: "another@example.com",
+      password: userPassword,
+      role: Role.USER,
+      bio: "I am another regular user.",
+    },
+  });
+
   const exampleRecipe = await prisma.recipe.create({
     data: {
       title: "Spaghetti Carbonara",
@@ -50,6 +60,28 @@ export async function seedDatabase() {
         "Drain pasta, add to pan with pork, then quickly add egg mixture and toss to combine. The heat of the pasta will cook the eggs into a creamy sauce.",
       ],
       imageUrl: "https://example.com/spaghetti-carbonara.jpg",
+      authorId: normalUser.id,
+    },
+  });
+
+  const _secondRecipe = await prisma.recipe.create({
+    data: {
+      title: "Chicken Curry",
+      description:
+        "A flavorful chicken curry made with a blend of spices, tomatoes, and coconut milk.",
+      ingredients: {
+        chicken: "500g chicken thighs, cut into pieces",
+        spices: "2 tsp curry powder, 1 tsp turmeric, 1 tsp cumin",
+        tomatoes: "400g canned tomatoes",
+        coconutMilk: "200ml coconut milk",
+      },
+      steps: [
+        "Sauté spices in oil until fragrant.",
+        "Add chicken pieces and brown on all sides.",
+        "Add tomatoes and simmer until chicken is cooked through.",
+        "Stir in coconut milk and cook for another 5 minutes.",
+      ],
+      imageUrl: "https://example.com/chicken-curry.jpg",
       authorId: normalUser.id,
     },
   });
