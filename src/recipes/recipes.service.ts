@@ -1,5 +1,5 @@
-import { Recipe, Role } from "@prisma/client";
-import { InputJsonValue } from "@prisma/client/runtime/library";
+import { Prisma, Recipe, Role } from "@prisma/client";
+import { InputJsonValue, JsonValue } from "@prisma/client/runtime/library";
 import { UserMetadata } from "src/users/dto/user-metadata.dto";
 
 import {
@@ -273,59 +273,53 @@ export class RecipesService {
 
     const excludeRecipeIds = [...favoriteRecipeIds, ...collectionRecipeIds];
 
-    const recipes = await this.prisma.recipe.findMany({
-      where: {
-        AND: [
-          { authorId: { not: userId } },
-          { id: { notIn: excludeRecipeIds } },
-        ],
-      },
-      include: {
-        author: {
-          select: {
-            username: true,
-            avatarUrl: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      take: limit * 3,
-    });
-
-    const shuffledRecipes = recipes
-      .toSorted(() => 0.5 - Math.random())
-      .slice(0, limit);
+    const recipes = await this.prisma.$queryRaw<
+      {
+        id: string;
+        title: string;
+        description: string | null;
+        ingredients: JsonValue;
+        steps: JsonValue;
+        imageUrl: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        authorId: string;
+        username: string;
+        avatarUrl: string | null;
+      }[]
+    >`
+        SELECT r.*, u.username, u."avatarUrl"
+        FROM "Recipe" r
+        JOIN "User" u ON r."authorId" = u.id
+        WHERE r."authorId" != ${userId}
+        ${excludeRecipeIds.length > 0 ? Prisma.sql`AND r.id NOT IN (${Prisma.join(excludeRecipeIds)})` : Prisma.empty}
+        ORDER BY RANDOM()
+        LIMIT ${limit}
+    `;
 
     const appUrl = this.configService.get<string>("APP_URL") ?? "";
-    const discoverRecipes: DiscoverRecipeDto[] = shuffledRecipes.map(
-      (recipe) => {
-        const imageUrl =
-          recipe.imageUrl === null
-            ? undefined
-            : `${appUrl}/uploads/${recipe.imageUrl}`;
+    const discoverRecipes: DiscoverRecipeDto[] = recipes.map((recipe) => {
+      const imageUrl =
+        recipe.imageUrl === null
+          ? undefined
+          : `${appUrl}/uploads/${recipe.imageUrl}`;
 
-        let avatarUrl: string | undefined;
-        if (
-          recipe.author.avatarUrl !== null &&
-          recipe.author.avatarUrl.length > 0
-        ) {
-          avatarUrl = `${appUrl}/uploads/${recipe.author.avatarUrl}`;
-        }
+      let avatarUrl: string | undefined;
+      if (recipe.avatarUrl !== null && recipe.avatarUrl.length > 0) {
+        avatarUrl = `${appUrl}/uploads/${recipe.avatarUrl}`;
+      }
 
-        return {
-          id: recipe.id,
-          title: recipe.title,
-          description: recipe.description ?? undefined,
-          imageUrl,
-          author: {
-            username: recipe.author.username,
-            avatarUrl,
-          },
-        };
-      },
-    );
+      return {
+        id: recipe.id,
+        title: recipe.title,
+        description: recipe.description ?? undefined,
+        imageUrl,
+        author: {
+          username: recipe.username,
+          avatarUrl,
+        },
+      };
+    });
 
     return {
       recipes: discoverRecipes,
