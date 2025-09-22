@@ -1,6 +1,7 @@
 import type { RegisterDto } from "src/auth/dto/register.dto";
 import request from "supertest";
 
+import { ValidationPipe } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import { Test } from "@nestjs/testing";
@@ -27,6 +28,13 @@ describe("UsersController (e2e)", () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
+
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidUnknownValues: true,
+      }),
+    );
 
     const adminLoginResponse: { body: LoginResponseDto } = await request(
       app.getHttpServer(),
