@@ -7,11 +7,11 @@ import type { TestingModule } from "@nestjs/testing";
 import { Test } from "@nestjs/testing";
 
 import { AuthModule } from "../src/auth/auth.module";
-import type { LoginResponseDto } from "../src/auth/dto/login-response.dto";
 import { PrismaModule } from "../src/prisma/prisma.module";
 import type { FileUploadResponseDto } from "../src/uploads/dto/file-upload-response.dto";
 import { UploadsModule } from "../src/uploads/uploads.module";
 import { seedDatabase } from "./seed-database";
+import { TestDataFactory } from "./test-data-factory";
 
 describe("UploadsController (e2e)", () => {
   let app: NestExpressApplication;
@@ -36,14 +36,9 @@ describe("UploadsController (e2e)", () => {
 
     await app.init();
 
-    const userLoginResponse: { body: LoginResponseDto } = await request(
-      app.getHttpServer(),
-    )
-      .post("/auth/login")
-      .send({ identifier: "user@example.com", password: "user123" });
-
-    userToken = userLoginResponse.body.token;
-    _userEmail = userLoginResponse.body.email;
+    const tokens = await TestDataFactory.getAuthTokens(app);
+    userToken = tokens.userToken;
+    _userEmail = tokens.userEmail;
   });
 
   describe("POST /uploads/:type", () => {

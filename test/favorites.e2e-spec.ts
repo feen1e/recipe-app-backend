@@ -7,12 +7,12 @@ import { Test } from "@nestjs/testing";
 import type { TestingModule } from "@nestjs/testing";
 
 import { AuthModule } from "../src//auth/auth.module";
-import type { LoginResponseDto } from "../src//auth/dto/login-response.dto";
 import { FavoritesModule } from "../src/favorites/favorites.module";
 import { PrismaModule } from "../src/prisma/prisma.module";
 import type { RecipeResponseDto } from "../src/recipes/dto/recipe-response.dto";
 import { RecipesModule } from "../src/recipes/recipes.module";
 import { seedDatabase } from "./seed-database";
+import { TestDataFactory } from "./test-data-factory";
 
 describe("FavoritesController (e2e)", () => {
   let app: NestExpressApplication;
@@ -45,32 +45,13 @@ describe("FavoritesController (e2e)", () => {
       }),
     );
 
-    const adminLoginResponse: { body: LoginResponseDto } = await request(
-      app.getHttpServer(),
-    )
-      .post("/auth/login")
-      .send({ identifier: "admin@example.com", password: "admin123" });
+    const tokens = await TestDataFactory.getAuthTokens(app);
+    adminToken = tokens.adminToken;
+    adminId = tokens.adminId;
+    userToken = tokens.userToken;
+    _userId = tokens.userId;
 
-    adminToken = adminLoginResponse.body.token;
-    adminId = adminLoginResponse.body.id;
-
-    const userLoginResponse: { body: LoginResponseDto } = await request(
-      app.getHttpServer(),
-    )
-      .post("/auth/login")
-      .send({ identifier: "user@example.com", password: "user123" });
-
-    userToken = userLoginResponse.body.token;
-    _userId = userLoginResponse.body.id;
-
-    const recipesResponse = await request(app.getHttpServer())
-      .get("/recipes/user/normal_user")
-      .set("Authorization", `Bearer ${userToken}`)
-      .expect(200);
-
-    const recipes: RecipeResponseDto[] =
-      recipesResponse.body as RecipeResponseDto[];
-    recipeId = recipes.length > 0 ? recipes[0].id : "";
+    recipeId = await TestDataFactory.getFirstRecipeId(app, userToken);
   });
 
   describe("GET /favorites/:username", () => {

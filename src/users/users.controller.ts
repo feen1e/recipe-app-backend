@@ -95,4 +95,12 @@ export class UsersController {
   async getUser(@Param("username") username: string) {
     return await this.usersService.getUser(username);
   }
+
+  @Get("/id/:id")
+  @ApiOperation({ summary: "Get user profile by ID" })
+  @ApiResponse({ status: 200, description: "User found." })
+  @ApiResponse({ status: 404, description: "User not found." })
+  async getUserById(@Param("id") id: string) {
+    return await this.usersService.getUserDataById(id);
+  }
 }

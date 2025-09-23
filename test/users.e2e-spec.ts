@@ -8,16 +8,18 @@ import { Test } from "@nestjs/testing";
 import type { TestingModule } from "@nestjs/testing";
 
 import { AuthModule } from "../src//auth/auth.module";
-import type { LoginResponseDto } from "../src//auth/dto/login-response.dto";
 import { PrismaModule } from "../src/prisma/prisma.module";
 import { seedDatabase } from "./seed-database";
+import { TestDataFactory } from "./test-data-factory";
 
 describe("UsersController (e2e)", () => {
   let app: NestExpressApplication;
   let adminToken: string;
   let _adminEmail: string;
+  let _adminId: string;
   let userToken: string;
   let userEmail: string;
+  let userId: string;
 
   beforeEach(async () => {
     await seedDatabase();
@@ -36,23 +38,13 @@ describe("UsersController (e2e)", () => {
       }),
     );
 
-    const adminLoginResponse: { body: LoginResponseDto } = await request(
-      app.getHttpServer(),
-    )
-      .post("/auth/login")
-      .send({ identifier: "admin@example.com", password: "admin123" });
-
-    adminToken = adminLoginResponse.body.token;
-    _adminEmail = adminLoginResponse.body.email;
-
-    const userLoginResponse: { body: LoginResponseDto } = await request(
-      app.getHttpServer(),
-    )
-      .post("/auth/login")
-      .send({ identifier: "user@example.com", password: "user123" });
-
-    userToken = userLoginResponse.body.token;
-    userEmail = userLoginResponse.body.email;
+    const tokens = await TestDataFactory.getAuthTokens(app);
+    adminToken = tokens.adminToken;
+    _adminEmail = tokens.adminEmail;
+    _adminId = tokens.adminId;
+    userToken = tokens.userToken;
+    userEmail = tokens.userEmail;
+    userId = tokens.userId;
   });
 
   describe("GET /users/:username", () => {
@@ -68,6 +60,24 @@ describe("UsersController (e2e)", () => {
     it("should return 404 for non-existing username", async () => {
       await request(app.getHttpServer())
         .get("/users/non_existing_user")
+        .set("Authorization", `Bearer ${userToken}`)
+        .expect(404);
+    });
+  });
+
+  describe("GET /users/id/:id", () => {
+    it("should return user profile for valid ID", async () => {
+      const response = await request(app.getHttpServer())
+        .get(`/users/id/${userId}`)
+        .set("Authorization", `Bearer ${userToken}`)
+        .expect(200);
+
+      expect(response.body).toHaveProperty("username", "normal_user");
+      expect(response.body).toHaveProperty("avatarUrl");
+    });
+    it("should return 404 for non-existing ID", async () => {
+      await request(app.getHttpServer())
+        .get("/users/id/non-existing-id")
         .set("Authorization", `Bearer ${userToken}`)
         .expect(404);
     });

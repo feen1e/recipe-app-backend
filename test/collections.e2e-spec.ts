@@ -7,7 +7,6 @@ import type { TestingModule } from "@nestjs/testing";
 import { Test } from "@nestjs/testing";
 
 import { AuthModule } from "../src/auth/auth.module";
-import type { LoginResponseDto } from "../src/auth/dto/login-response.dto";
 import { CollectionsModule } from "../src/collections/collections.module";
 import type { CollectionCreateDto } from "../src/collections/dto/collection-create.dto";
 import type { CollectionResponseDto } from "../src/collections/dto/collection-response.dto";
@@ -15,6 +14,7 @@ import type { CollectionUpdateDto } from "../src/collections/dto/collection-upda
 import { PrismaModule } from "../src/prisma/prisma.module";
 import { RecipesModule } from "../src/recipes/recipes.module";
 import { seedDatabase } from "./seed-database";
+import { TestDataFactory } from "./test-data-factory";
 
 describe("CollectionsController (e2e)", () => {
   let app: NestExpressApplication;
@@ -52,32 +52,13 @@ describe("CollectionsController (e2e)", () => {
 
     await app.init();
 
-    const adminLoginResponse: { body: LoginResponseDto } = await request(
-      app.getHttpServer(),
-    )
-      .post("/auth/login")
-      .send({ identifier: "admin@example.com", password: "admin123" });
-
-    adminToken = adminLoginResponse.body.token;
-    _adminEmail = adminLoginResponse.body.email;
-
-    const userLoginResponse: { body: LoginResponseDto } = await request(
-      app.getHttpServer(),
-    )
-      .post("/auth/login")
-      .send({ identifier: "user@example.com", password: "user123" });
-
-    userToken = userLoginResponse.body.token;
-    _userEmail = userLoginResponse.body.email;
-
-    const anotherUserLoginResponse: { body: LoginResponseDto } = await request(
-      app.getHttpServer(),
-    )
-      .post("/auth/login")
-      .send({ identifier: "another@example.com", password: "user123" });
-
-    anotherUserToken = anotherUserLoginResponse.body.token;
-    _anotherUserEmail = anotherUserLoginResponse.body.email;
+    const tokens = await TestDataFactory.getAuthTokens(app);
+    adminToken = tokens.adminToken;
+    _adminEmail = tokens.adminEmail;
+    userToken = tokens.userToken;
+    _userEmail = tokens.userEmail;
+    anotherUserToken = tokens.anotherUserToken;
+    _anotherUserEmail = tokens.anotherUserEmail;
   });
 
   describe("GET /collections", () => {

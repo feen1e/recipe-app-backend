@@ -7,7 +7,6 @@ import type { TestingModule } from "@nestjs/testing";
 import { Test } from "@nestjs/testing";
 
 import { AuthModule } from "../src/auth/auth.module";
-import type { LoginResponseDto } from "../src/auth/dto/login-response.dto";
 import { PrismaModule } from "../src/prisma/prisma.module";
 import type { DiscoverRecipesResponseDto } from "../src/recipes/dto/discover-recipes-response.dto";
 import type { LatestRecipesResponseDto } from "../src/recipes/dto/latest-recipes-response.dto";
@@ -15,6 +14,7 @@ import type { RecipeCreateDto } from "../src/recipes/dto/recipe-create.dto";
 import type { RecipeResponseDto } from "../src/recipes/dto/recipe-response.dto";
 import { RecipesModule } from "../src/recipes/recipes.module";
 import { seedDatabase } from "./seed-database";
+import { TestDataFactory } from "./test-data-factory";
 
 describe("RecipesController (e2e)", () => {
   let app: NestExpressApplication;
@@ -44,41 +44,15 @@ describe("RecipesController (e2e)", () => {
 
     await app.init();
 
-    const adminLoginResponse: { body: LoginResponseDto } = await request(
-      app.getHttpServer(),
-    )
-      .post("/auth/login")
-      .send({ identifier: "admin@example.com", password: "admin123" });
+    const tokens = await TestDataFactory.getAuthTokens(app);
+    adminToken = tokens.adminToken;
+    _adminEmail = tokens.adminEmail;
+    userToken = tokens.userToken;
+    _userEmail = tokens.userEmail;
+    anotherUserToken = tokens.anotherUserToken;
+    _anotherUserEmail = tokens.anotherUserEmail;
 
-    adminToken = adminLoginResponse.body.token;
-    _adminEmail = adminLoginResponse.body.email;
-
-    const userLoginResponse: { body: LoginResponseDto } = await request(
-      app.getHttpServer(),
-    )
-      .post("/auth/login")
-      .send({ identifier: "user@example.com", password: "user123" });
-
-    userToken = userLoginResponse.body.token;
-    _userEmail = userLoginResponse.body.email;
-
-    const anotherUserLoginResponse: { body: LoginResponseDto } = await request(
-      app.getHttpServer(),
-    )
-      .post("/auth/login")
-      .send({ identifier: "another@example.com", password: "user123" });
-
-    anotherUserToken = anotherUserLoginResponse.body.token;
-    _anotherUserEmail = anotherUserLoginResponse.body.email;
-
-    const recipesResponse = await request(app.getHttpServer())
-      .get("/recipes/user/normal_user")
-      .set("Authorization", `Bearer ${userToken}`)
-      .expect(200);
-
-    const recipes: RecipeResponseDto[] =
-      recipesResponse.body as RecipeResponseDto[];
-    recipeId = recipes.length > 0 ? recipes[0].id : "";
+    recipeId = await TestDataFactory.getFirstRecipeId(app, userToken);
   });
 
   describe("GET /recipes", () => {

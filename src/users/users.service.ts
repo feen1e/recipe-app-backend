@@ -45,6 +45,27 @@ export class UsersService {
     });
   }
 
+  async getUserDataById(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (user === null) {
+      throw new NotFoundException("User not found");
+    }
+
+    const appUrl = this.configService.get<string>("APP_URL");
+    const avatarUrl =
+      appUrl == null || user.avatarUrl == null
+        ? ""
+        : `${appUrl}/uploads/${user.avatarUrl}`;
+
+    return {
+      username: user.username,
+      avatarUrl,
+    };
+  }
+
   async getUserMetadata(sub: string, email: string): Promise<UserMetadata> {
     const user = await this.prisma.user.findUnique({
       where: { id: sub, email },
