@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   UnauthorizedException,
   UseGuards,
@@ -19,6 +20,10 @@ import {
 
 import { AuthGuard } from "../auth/auth.guard";
 import type { RequestWithUser } from "../auth/dto/request-with-user.dto";
+import { DiscoverRecipesQueryDto } from "./dto/discover-recipes-query.dto";
+import { DiscoverRecipesResponseDto } from "./dto/discover-recipes-response.dto";
+import { LatestRecipesQueryDto } from "./dto/latest-recipes-query.dto";
+import { LatestRecipesResponseDto } from "./dto/latest-recipes-response.dto";
 import { RecipeCreateDto } from "./dto/recipe-create.dto";
 import { RecipeResponseDto } from "./dto/recipe-response.dto";
 import { RecipeUpdateDto } from "./dto/recipe-update.dto";
@@ -41,6 +46,41 @@ export class RecipesController {
     return this.recipesService.getAllRecipes();
   }
 
+  @Get("latest")
+  @ApiOperation({ summary: "Get latest recipes with cursor-based pagination" })
+  @ApiResponse({
+    status: 200,
+    description: "Latest recipes with pagination info",
+    type: LatestRecipesResponseDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: "Provided cursor does not exist",
+  })
+  async getLatestRecipes(@Query() query: LatestRecipesQueryDto) {
+    return this.recipesService.getLatestRecipes(query);
+  }
+
+  @Get("discover")
+  @UseGuards(AuthGuard)
+  @ApiOperation({
+    summary: "Discover random recipes not in user's favorites or collections",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Random recipes for discovery",
+    type: DiscoverRecipesResponseDto,
+  })
+  async discoverRecipes(
+    @Req() request: RequestWithUser,
+    @Query() query: DiscoverRecipesQueryDto,
+  ) {
+    if (request.user == null) {
+      throw new UnauthorizedException("User not authenticated");
+    }
+    return this.recipesService.discoverRecipes(request.user.id, query);
+  }
+
   @Get("user/:username")
   @ApiOperation({ summary: "Get recipes by user ID" })
   @ApiResponse({
@@ -48,6 +88,10 @@ export class RecipesController {
     description: "List of recipes by the specified user",
     isArray: true,
     type: RecipeResponseDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: "User not found",
   })
   async getUserRecipes(@Param("username") username: string) {
     return this.recipesService.getUserRecipes(username);
@@ -59,6 +103,10 @@ export class RecipesController {
     status: 200,
     description: "Recipe found",
     type: RecipeResponseDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: "Recipe not found",
   })
   async getRecipeById(@Param("id") id: string) {
     return this.recipesService.getRecipeById(id);
