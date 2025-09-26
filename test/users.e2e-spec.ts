@@ -73,7 +73,6 @@ describe("UsersController (e2e)", () => {
         .expect(200);
 
       expect(response.body).toHaveProperty("username", "normal_user");
-      expect(response.body).toHaveProperty("avatarUrl");
     });
     it("should return 404 for non-existing ID", async () => {
       await request(app.getHttpServer())

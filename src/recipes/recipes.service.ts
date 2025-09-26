@@ -52,6 +52,7 @@ export class RecipesService {
     }
     const recipes = await this.prisma.recipe.findMany({
       where: { authorId: user.id },
+      orderBy: { updatedAt: "desc" },
     });
 
     const appUrl = this.configService.get<string>("APP_URL") ?? "";

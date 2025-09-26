@@ -20,10 +20,11 @@ export function recipeToResponseDto(
 ): RecipeResponseDto {
   const ingredients: string[] = parseArrayFromJson(recipe.ingredients);
   const steps: string[] = parseArrayFromJson(recipe.steps);
+  const filename = recipe.imageUrl?.trim();
   const imageUrl =
-    recipe.imageUrl === null
+    filename?.length === 0 || filename === undefined
       ? undefined
-      : `${appUrl}/uploads/${recipe.imageUrl}`;
+      : `${appUrl}/uploads/${filename}`;
 
   return {
     id: recipe.id,
@@ -32,7 +33,7 @@ export function recipeToResponseDto(
     description: recipe.description ?? undefined,
     ingredients,
     steps,
-    imageUrl: imageUrl ?? undefined,
+    imageUrl,
     createdAt: recipe.createdAt,
     updatedAt: recipe.updatedAt,
   };

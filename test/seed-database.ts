@@ -32,7 +32,7 @@ export async function seedDatabase() {
     },
   });
 
-  const _anotherUser = await prisma.user.create({
+  const anotherUser = await prisma.user.create({
     data: {
       username: "another_user",
       email: "another@example.com",
@@ -82,7 +82,7 @@ export async function seedDatabase() {
         "Stir in coconut milk and cook for another 5 minutes.",
       ],
       imageUrl: "https://example.com/chicken-curry.jpg",
-      authorId: normalUser.id,
+      authorId: anotherUser.id,
     },
   });
 

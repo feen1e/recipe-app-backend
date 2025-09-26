@@ -55,10 +55,11 @@ export class UsersService {
     }
 
     const appUrl = this.configService.get<string>("APP_URL");
+    const filename = user.avatarUrl?.trim();
     const avatarUrl =
-      appUrl == null || user.avatarUrl == null
-        ? ""
-        : `${appUrl}/uploads/${user.avatarUrl}`;
+      filename?.length === 0 || filename === undefined || appUrl === undefined
+        ? undefined
+        : `${appUrl}/uploads/${filename}`;
 
     return {
       username: user.username,

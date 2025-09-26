@@ -12,8 +12,11 @@ export class UserResponseDto {
 }
 
 export function userToResponseDto(user: User, appUrl: string): UserResponseDto {
+  const filename = user.avatarUrl?.trim();
   const avatar =
-    user.avatarUrl === null ? undefined : `${appUrl}/uploads/${user.avatarUrl}`;
+    filename?.length === 0 || filename === undefined
+      ? undefined
+      : `${appUrl}/uploads/${filename}`;
   return {
     id: user.id,
     username: user.username,
