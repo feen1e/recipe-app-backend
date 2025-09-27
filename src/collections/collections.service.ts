@@ -1,4 +1,5 @@
 import { Role } from "@prisma/client";
+import { CollectionRecipe } from "@prisma/client";
 
 import {
   ForbiddenException,
@@ -130,5 +131,41 @@ export class CollectionsService {
     });
 
     return { message: "Collection deleted successfully." };
+  }
+
+  async addRecipeToCollection(
+    user: UserMetadata,
+    collectionId: string,
+    recipeId: string,
+  ): Promise<CollectionRecipe> {
+    const collection = await this.prisma.collection.findUnique({
+      where: { id: collectionId },
+    });
+
+    if (collection === null) {
+      throw new NotFoundException("Collection not found.");
+    }
+
+    if (collection.userId !== user.id && user.role !== Role.ADMIN) {
+      throw new ForbiddenException(
+        "You do not have permission to modify this collection.",
+      );
+    }
+
+    try {
+      return await this.prisma.collectionRecipe.create({
+        data: {
+          collectionId,
+          recipeId,
+        },
+      });
+    } catch (error: unknown) {
+      if (typeof error === "object" && error !== null && "code" in error) {
+        throw new NotFoundException(
+          "Recipe already exists in this collection.",
+        );
+      }
+      throw error;
+    }
   }
 }

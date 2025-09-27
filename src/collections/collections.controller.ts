@@ -1,3 +1,5 @@
+import { CollectionRecipe } from "@prisma/client";
+
 import {
   Body,
   Controller,
@@ -20,6 +22,7 @@ import {
 import { AuthGuard } from "../auth/auth.guard";
 import type { RequestWithUser } from "../auth/dto/request-with-user.dto";
 import { CollectionsService } from "./collections.service";
+import { AddRecipeToCollectionDto } from "./dto/add-recipe-to-collection.dto";
 import { CollectionCreateDto } from "./dto/collection-create.dto";
 import { CollectionUpdateDto } from "./dto/collection-update.dto";
 
@@ -106,5 +109,30 @@ export class CollectionsController {
       throw new UnauthorizedException("User not authenticated");
     }
     return this.collectionsService.deleteCollection(request.user, id);
+  }
+
+  @Post(":id/recipes")
+  @ApiOperation({ summary: "Add a recipe to a collection" })
+  @ApiResponse({ status: 201, description: "Recipe added to collection" })
+  @ApiResponse({ status: 401, description: "User not authenticated" })
+  @ApiResponse({
+    status: 403,
+    description: "Not authorized to modify this collection",
+  })
+  @ApiResponse({ status: 404, description: "Collection not found" })
+  @UseGuards(AuthGuard)
+  async addRecipeToCollection(
+    @Req() request: RequestWithUser,
+    @Param("id") collectionId: string,
+    @Body() dto: AddRecipeToCollectionDto,
+  ): Promise<CollectionRecipe> {
+    if (request.user == null) {
+      throw new UnauthorizedException("User not authenticated");
+    }
+    return this.collectionsService.addRecipeToCollection(
+      request.user,
+      collectionId,
+      dto.recipeId,
+    );
   }
 }
