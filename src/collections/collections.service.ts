@@ -152,6 +152,16 @@ export class CollectionsService {
       );
     }
 
+    const recipe = await this.prisma.recipe.findUnique({
+      where: { id: recipeId },
+    });
+
+    if (recipe === null) {
+      throw new NotFoundException(
+        `Recipe with ID: ${recipeId} does not exist.`,
+      );
+    }
+
     try {
       return await this.prisma.collectionRecipe.create({
         data: {
