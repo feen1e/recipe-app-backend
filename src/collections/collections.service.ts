@@ -2,6 +2,7 @@ import { Role } from "@prisma/client";
 import { CollectionRecipe } from "@prisma/client";
 
 import {
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -171,7 +172,7 @@ export class CollectionsService {
       });
     } catch (error: unknown) {
       if (typeof error === "object" && error !== null && "code" in error) {
-        throw new NotFoundException(
+        throw new ConflictException(
           "Recipe already exists in this collection.",
         );
       }
