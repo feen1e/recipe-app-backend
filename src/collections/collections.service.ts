@@ -1,6 +1,7 @@
-import { Role } from "@prisma/client";
+import { CollectionRecipe, Role } from "@prisma/client";
 
 import {
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -130,5 +131,99 @@ export class CollectionsService {
     });
 
     return { message: "Collection deleted successfully." };
+  }
+
+  async addRecipeToCollection(
+    user: UserMetadata,
+    collectionId: string,
+    recipeId: string,
+  ): Promise<CollectionRecipe> {
+    const collection = await this.prisma.collection.findUnique({
+      where: { id: collectionId },
+    });
+
+    if (collection === null) {
+      throw new NotFoundException("Collection not found.");
+    }
+
+    if (collection.userId !== user.id && user.role !== Role.ADMIN) {
+      throw new ForbiddenException(
+        "You do not have permission to modify this collection.",
+      );
+    }
+
+    const recipe = await this.prisma.recipe.findUnique({
+      where: { id: recipeId },
+    });
+
+    if (recipe === null) {
+      throw new NotFoundException(
+        `Recipe with ID: ${recipeId} does not exist.`,
+      );
+    }
+
+    try {
+      return await this.prisma.collectionRecipe.create({
+        data: {
+          collectionId,
+          recipeId,
+        },
+      });
+    } catch (error: unknown) {
+      if (typeof error === "object" && error !== null && "code" in error) {
+        throw new ConflictException(
+          "Recipe already exists in this collection.",
+        );
+      }
+      throw error;
+    }
+  }
+
+  async removeRecipeFromCollection(
+    user: UserMetadata,
+    collectionId: string,
+    recipeId: string,
+  ): Promise<{ message: string }> {
+    const collection = await this.prisma.collection.findUnique({
+      where: { id: collectionId },
+    });
+
+    if (collection === null) {
+      throw new NotFoundException("Collection not found.");
+    }
+
+    if (collection.userId !== user.id && user.role !== Role.ADMIN) {
+      throw new ForbiddenException(
+        "You do not have permission to modify this collection.",
+      );
+    }
+
+    const collectionRecipe = await this.prisma.collectionRecipe.findUnique({
+      where: {
+        collectionId_recipeId: {
+          collectionId,
+          recipeId,
+        },
+      },
+    });
+
+    if (collectionRecipe === null) {
+      throw new NotFoundException(
+        `Recipe with ID ${recipeId} is not in this collection.`,
+      );
+    }
+
+    await this.prisma.collectionRecipe.delete({
+      where: {
+        collectionId_recipeId: {
+          collectionId,
+          recipeId,
+        },
+      },
+    });
+
+    return {
+      message: `Recipe ${recipeId} removed from collection successfully.`,
+    };
   }
 }
