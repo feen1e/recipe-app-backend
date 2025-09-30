@@ -34,6 +34,10 @@ export class FavoritesController {
     isArray: true,
     type: RecipeResponseDto,
   })
+  @ApiResponse({
+    status: 404,
+    description: "User not found.",
+  })
   async getUserFavorites(@Param("username") username: string) {
     return this.favoritesService.getUserFavorites(username);
   }
@@ -47,6 +51,10 @@ export class FavoritesController {
   @ApiResponse({
     status: 404,
     description: "User or Recipe not found.",
+  })
+  @ApiResponse({
+    status: 409,
+    description: "Recipe is already in favorites.",
   })
   @UseGuards(AuthGuard)
   async addFavorite(
@@ -65,6 +73,10 @@ export class FavoritesController {
   @ApiResponse({
     status: 200,
     description: "The recipe has been successfully removed from favorites.",
+  })
+  @ApiResponse({
+    status: 404,
+    description: "Recipe not found in favorites.",
   })
   @UseGuards(AuthGuard)
   async removeFavorite(

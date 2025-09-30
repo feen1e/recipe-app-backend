@@ -21,6 +21,4 @@ describe("AppController (e2e)", () => {
   it("should be defined", () => {
     expect(app).toBeDefined();
   });
-
-  // add proper tests later
 });
