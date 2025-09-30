@@ -65,7 +65,7 @@ export class RatingsService {
     const newRating = await this.prisma.rating.create({
       data: {
         stars: dto.stars,
-        rewiev: dto.review, //not sure how to fix this error
+        review: dto.review, //not sure how to fix this error
         userId: authorId,
         recipeId: dto.recipeId,
         createdAt: dto.createdAt,

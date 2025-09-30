@@ -23,6 +23,7 @@ export class RatingUpdateDto {
     example: "123456",
   })
   @IsString()
+  @IsOptional()
   userId?: string;
 
   @ApiPropertyOptional({
@@ -30,15 +31,18 @@ export class RatingUpdateDto {
     example: "123456",
   })
   @IsString()
+  @IsOptional()
   recipeId?: string;
 
   @ApiPropertyOptional({
     description: "When the review was created",
   })
+  @IsOptional()
   createdAt?: Date;
 
   @ApiPropertyOptional({
     description: "When was the review last updated",
   })
+  @IsOptional()
   updatedAt?: Date;
 }
