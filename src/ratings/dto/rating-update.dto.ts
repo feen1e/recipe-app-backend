@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from "class-validator";
+import { IsObject, IsOptional, IsString } from "class-validator";
 
 import { ApiPropertyOptional } from "@nestjs/swagger";
 
@@ -7,6 +7,8 @@ export class RatingUpdateDto {
     description: "The amount of stars 1-5",
     example: 5,
   })
+  @IsObject()
+  @IsOptional()
   stars?: number;
 
   @ApiPropertyOptional({
@@ -38,11 +40,13 @@ export class RatingUpdateDto {
     description: "When the review was created",
   })
   @IsOptional()
+  @IsObject()
   createdAt?: Date;
 
   @ApiPropertyOptional({
     description: "When was the review last updated",
   })
+  @IsObject()
   @IsOptional()
   updatedAt?: Date;
 }

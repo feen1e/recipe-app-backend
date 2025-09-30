@@ -10,10 +10,7 @@ export class RatingResponseDto {
   updatedAt: Date;
 }
 
-export function ratingToResponseDto(
-  rating: Rating,
-  appUrl: string,
-): RatingResponseDto {
+export function ratingToResponseDto(rating: Rating): RatingResponseDto {
   return {
     id: rating.id,
     stars: rating.stars,

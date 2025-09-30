@@ -25,8 +25,7 @@ export class RatingsService {
 
   async getAllRatings(): Promise<RatingResponseDto[]> {
     const ratings = await this.prisma.rating.findMany();
-    const appUrl = this.configService.get<string>("APP_URL") ?? "";
-    return ratings.map((rating) => ratingToResponseDto(rating, appUrl));
+    return ratings.map((rating) => ratingToResponseDto(rating));
   }
 
   async getUserRatings(username: string): Promise<RatingResponseDto[]> {
@@ -41,8 +40,7 @@ export class RatingsService {
       where: { userId: user.id },
     });
 
-    const appUrl = this.configService.get<string>("APP_URL") ?? "";
-    return ratings.map((rating) => ratingToResponseDto(rating, appUrl));
+    return ratings.map((rating) => ratingToResponseDto(rating));
   }
 
   async getRatingById(id: string): Promise<RatingResponseDto> {
@@ -54,8 +52,7 @@ export class RatingsService {
       throw new NotFoundException(`Rating with ID ${id} not found`);
     }
 
-    const appUrl = this.configService.get<string>("APP_URL") ?? "";
-    return ratingToResponseDto(rating, appUrl);
+    return ratingToResponseDto(rating);
   }
 
   async createRating(
@@ -73,8 +70,7 @@ export class RatingsService {
       },
     });
 
-    const appUrl = this.configService.get<string>("APP_URL") ?? "";
-    return ratingToResponseDto(newRating, appUrl);
+    return ratingToResponseDto(newRating);
   }
 
   async updateRating(
@@ -131,9 +127,7 @@ export class RatingsService {
       where: { id },
       data: updatedData,
     });
-
-    const appUrl = this.configService.get<string>("APP_URL") ?? "";
-    return ratingToResponseDto(updatedRating, appUrl);
+    return ratingToResponseDto(updatedRating);
   }
 
   async deleteRating(user: UserMetadata, id: string) {
