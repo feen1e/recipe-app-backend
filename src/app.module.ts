@@ -7,6 +7,7 @@ import { AuthModule } from "./auth/auth.module";
 import { CollectionsModule } from "./collections/collections.module";
 import { FavoritesModule } from "./favorites/favorites.module";
 import { PrismaModule } from "./prisma/prisma.module";
+import { RatingsModule } from "./ratings/ratings.module";
 import { RecipesModule } from "./recipes/recipes.module";
 import { UploadsModule } from "./uploads/uploads.module";
 import { UsersModule } from "./users/users.module";
@@ -21,6 +22,7 @@ import { UsersModule } from "./users/users.module";
     RecipesModule,
     FavoritesModule,
     CollectionsModule,
+    RatingsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
